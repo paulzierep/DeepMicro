@@ -51,7 +51,7 @@ X_train.shape:  (80, 200)
 Classification task has been skipped.
 ```
     
-__3. Suppose that we want to reduce the number of dimensions of our data to 20 from 200 using a *shallow autoencoder*.__ Note that `--save_rep` argument will save your representation under the `/results` folder.
+__3. Suppose that we want to reduce the number of dimensions of our data to 20 from 200 using a *shallow autoencoder*.__ Note that `--save_rep` argument will save your representation (the complete representation - not just the training) under the `/results` folder.
 ```
 ~$ python DM.py -r 1 --no_clf -cd UserDataExample.csv --ae -dm 20 --save_rep
 ```
@@ -98,6 +98,11 @@ The result will be saved under `/results` folder as a `UserDataExample_result.tx
 __4. You can learn representation first, and then apply SVM algorithm on the learned representation.__
 ```
 ~$ python DM.py -r 1 -cd UserDataExample.csv -cl UserLabelExample.csv --ae -dm 20 -m svm
+```
+
+__4.1. You can reload the stored the representation, and then apply SVM algorithm on the learned representation.__
+```
+~$ python DM.py -r 1 -cd UserDataExample.csv -cl UserLabelExample.csv --load_rep results/PCA_UserDataExample_rep.csv -m svm
 ```
 
 __5. You can repeat the same experiment by changing seeds for random partitioning of training and test set.__  Suppose we want to repeat classfication task five times. You can do it by put 5 into `-r` argument.
