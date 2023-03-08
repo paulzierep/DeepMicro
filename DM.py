@@ -111,11 +111,39 @@ class DeepMicrobiome(object):
             exit()
 
         # train and test split
+        self.X = raw.values.astype(dtype)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(raw.values.astype(dtype),
                                                                                 label_flatten.astype('int'), test_size=0.2,
                                                                                 random_state=self.seed,
                                                                                 stratify=label_flatten)
         self.printDataShapes()
+
+    def loadStoredEncodingWithLabels(self, label_data, dtype=None, loaded_X = None):
+
+        label_filename = self.data_dir + "data/" + label_data
+        if os.path.isfile(label_filename):
+            raw = loaded_X
+            label = pd.read_csv(label_filename, sep=',', index_col=False, header=None)
+        else:
+            if not os.path.isfile(label_filename):
+                print("FileNotFoundError: File {} does not exist".format(label_filename))
+            exit()
+
+        # label data validity check
+        if not label.values.shape[1] > 1:
+            label_flatten = label.values.reshape((label.values.shape[0]))
+        else:
+            print('FileSpecificationError: The label file contains more than 1 column.')
+            exit()
+
+        # train and test split
+        self.X = raw.values.astype(dtype)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(raw.values.astype(dtype),
+                                                                                label_flatten.astype('int'), test_size=0.2,
+                                                                                random_state=self.seed,
+                                                                                stratify=label_flatten)
+        self.printDataShapes()
+
 
 
     #Principal Component Analysis
@@ -138,6 +166,7 @@ class DeepMicrobiome(object):
         pca = PCA(n_components=n_comp)
         pca.fit(self.X_train)
 
+        self.X = pca.transform(self.X)
         X_train = pca.transform(self.X_train)
         X_test = pca.transform(self.X_test)
 
@@ -155,6 +184,7 @@ class DeepMicrobiome(object):
         rf.fit(self.X_train)
 
         # applying GRP to the whole training and the test set.
+        self.X = rf.transform(self.X)
         self.X_train = rf.transform(self.X_train)
         self.X_test = rf.transform(self.X_test)
         self.printDataShapes()
@@ -218,6 +248,7 @@ class DeepMicrobiome(object):
         self.encoder = Model(self.autoencoder.layers[0].input, self.autoencoder.layers[layer_idx].output)
 
         # applying the learned encoder into the whole training and the test set.
+        self.X = self.encoder.predict(self.X)
         self.X_train = self.encoder.predict(self.X_train)
         self.X_test = self.encoder.predict(self.X_test)
 
@@ -291,6 +322,7 @@ class DeepMicrobiome(object):
         self.encoder = self.vae.layers[1]
 
         # applying the learned encoder into the whole training and the test set.
+        _, _, self.X = self.encoder.predict(self.X)
         _, _, self.X_train = self.encoder.predict(self.X_train)
         _, _, self.X_test = self.encoder.predict(self.X_test)
 
@@ -363,6 +395,7 @@ class DeepMicrobiome(object):
         self.encoder = Model(self.cae.layers[0].input, self.cae.layers[layer_idx].output)
 
         # applying the learned encoder into the whole training and the test set.
+        self.X = self.encoder.predict(self.X)
         self.X_train = self.encoder.predict(self.X_train)
         self.X_test = self.encoder.predict(self.X_test)
         self.printDataShapes()
@@ -530,6 +563,8 @@ if __name__ == '__main__':
     rl.add_argument("--cae", help="run Convolutional Autoencoder", action='store_true')
     rl.add_argument("--save_rep", help="write the learned representation of the training set as a file", action='store_true')
 
+    rl.add_argument("--load_rep", help="load the learned representation of the training set as a file", type=str, default="")
+
     # detailed options for representation learning
     ## common options
     common = parser.add_argument_group('Common options for representation learning (SAE,DAE,VAE,CAE)')
@@ -565,6 +600,8 @@ if __name__ == '__main__':
     others = parser.add_argument_group('other optional arguments')
     others.add_argument("--no_trn", help="stop before learning representation to see specified autoencoder structure", action='store_true')
     others.add_argument("--no_clf", help="skip classification tasks", action='store_true')
+
+
 
 
     args = parser.parse_args()
@@ -638,8 +675,18 @@ if __name__ == '__main__':
 
             ### with labels - conducting representation learning + classification
             else:
-                dm = DeepMicrobiome(data=args.custom_data, seed=seed, data_dir=args.data_dir)
-                dm.loadCustomDataWithLabels(label_data=args.custom_data_labels, dtype=dtypeDict[args.dataType])
+
+                ### with labels using precomputed representation learning + only classification
+                if args.load_rep:
+                    X = pd.read_csv(args.load_rep, header=None)
+                    print(f"Loaded representation matrix from: {args.load_rep} with shape: {X.shape}")
+
+                    dm = DeepMicrobiome(data=args.custom_data, seed=seed, data_dir=args.data_dir)
+                    dm.loadStoredEncodingWithLabels(label_data=args.custom_data_labels, dtype=dtypeDict[args.dataType], loaded_X = X)
+                    
+                else:
+                    dm = DeepMicrobiome(data=args.custom_data, seed=seed, data_dir=args.data_dir)
+                    dm.loadCustomDataWithLabels(label_data=args.custom_data_labels, dtype=dtypeDict[args.dataType])
 
         else:
             exit()
@@ -667,12 +714,16 @@ if __name__ == '__main__':
         if args.rp:
             dm.rp()
 
-        # write the learned representation of the training set as a file
+        # if args.load_rep:
+        #     dm.X_train = pd.read_csv(args.load_rep, header=None).to_numpy()
+        #     print(f"Loaded representation matrix from: {args.load_rep} with shape: {dm.X_train.shape}")
+
+        # write the learned representation of X as a file
         if args.save_rep:
             if numRLrequired == 1:
                 rep_file = dm.data_dir + "results/" + dm.prefix + dm.data + "_rep.csv"
-                pd.DataFrame(dm.X_train).to_csv(rep_file, header=None, index=None)
-                print("The learned representation of the training set has been saved in '{}'".format(rep_file))
+                pd.DataFrame(dm.X).to_csv(rep_file, header=None, index=None)
+                print("The learned representation of the set has been saved in '{}'".format(rep_file))
             else:
                 print("Warning: Command option '--save_rep' is not applied as no representation learning or dimensionality reduction has been conducted.")
 
