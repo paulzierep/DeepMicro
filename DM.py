@@ -119,7 +119,7 @@ class DeepMicrobiome(object):
         self.printDataShapes()
 
     def loadStoredEncodingWithLabels(self, label_data, dtype=None, loaded_X = None):
-
+        # if only the classifiers should be used without repeated encoding an precomputed encoding can be loaded
         label_filename = self.data_dir + "data/" + label_data
         if os.path.isfile(label_filename):
             raw = loaded_X
