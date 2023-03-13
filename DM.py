@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # importing numpy, pandas, and matplotlib
 import numpy as np
 import pandas as pd
