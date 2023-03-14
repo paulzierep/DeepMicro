@@ -81,7 +81,7 @@ class DeepMicrobiome(object):
             print("FileNotFoundError: File {} does not exist".format(filename))
             exit()
 
-        # load data
+        # load data (if no clf is given complete X is used as training for the latent representation)
         self.X_train = raw.values.astype(dtype)
 
         # put nothing or zeros for y_train, y_test, and X_test
@@ -112,7 +112,6 @@ class DeepMicrobiome(object):
             exit()
 
         # train and test split
-        self.X = raw.values.astype(dtype)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(raw.values.astype(dtype),
                                                                                 label_flatten.astype('int'), test_size=0.2,
                                                                                 random_state=self.seed,
@@ -138,7 +137,6 @@ class DeepMicrobiome(object):
             exit()
 
         # train and test split
-        self.X = raw.values.astype(dtype)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(raw.values.astype(dtype),
                                                                                 label_flatten.astype('int'), test_size=0.2,
                                                                                 random_state=self.seed,
@@ -185,7 +183,6 @@ class DeepMicrobiome(object):
         rf.fit(self.X_train)
 
         # applying GRP to the whole training and the test set.
-        self.X = rf.transform(self.X)
         self.X_train = rf.transform(self.X_train)
         self.X_test = rf.transform(self.X_test)
         self.printDataShapes()
@@ -249,7 +246,6 @@ class DeepMicrobiome(object):
         self.encoder = Model(self.autoencoder.layers[0].input, self.autoencoder.layers[layer_idx].output)
 
         # applying the learned encoder into the whole training and the test set.
-        self.X = self.encoder.predict(self.X)
         self.X_train = self.encoder.predict(self.X_train)
         self.X_test = self.encoder.predict(self.X_test)
 
@@ -323,7 +319,6 @@ class DeepMicrobiome(object):
         self.encoder = self.vae.layers[1]
 
         # applying the learned encoder into the whole training and the test set.
-        _, _, self.X = self.encoder.predict(self.X)
         _, _, self.X_train = self.encoder.predict(self.X_train)
         _, _, self.X_test = self.encoder.predict(self.X_test)
 
@@ -396,7 +391,6 @@ class DeepMicrobiome(object):
         self.encoder = Model(self.cae.layers[0].input, self.cae.layers[layer_idx].output)
 
         # applying the learned encoder into the whole training and the test set.
-        self.X = self.encoder.predict(self.X)
         self.X_train = self.encoder.predict(self.X_train)
         self.X_test = self.encoder.predict(self.X_test)
         self.printDataShapes()
@@ -715,15 +709,11 @@ if __name__ == '__main__':
         if args.rp:
             dm.rp()
 
-        # if args.load_rep:
-        #     dm.X_train = pd.read_csv(args.load_rep, header=None).to_numpy()
-        #     print(f"Loaded representation matrix from: {args.load_rep} with shape: {dm.X_train.shape}")
-
         # write the learned representation of X as a file
         if args.save_rep:
             if numRLrequired == 1:
                 rep_file = dm.data_dir + "results/" + dm.prefix + dm.data + "_rep.csv"
-                pd.DataFrame(dm.X).to_csv(rep_file, header=None, index=None)
+                pd.DataFrame(dm.X_train).to_csv(rep_file, header=None, index=None)
                 print("The learned representation of the set has been saved in '{}'".format(rep_file))
             else:
                 print("Warning: Command option '--save_rep' is not applied as no representation learning or dimensionality reduction has been conducted.")
