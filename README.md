@@ -1,34 +1,20 @@
+* Modified from https://github.com/minoh0201/DeepMicro
+* Added to bioconda
+* Added wrapper for Galaxy
+
 # DeepMicro
 DeepMicro is a deep representation learning framework exploiting various autoencoders to learn robust low-dimensional representations from high-dimensional data and training classification models based on the learned representation.
 
 ## Quick Setup Guide
 
-**Step 1:** Change the current working directory to the location where you want to install `DeepMicro`.
+```
+~$ conda install deepmicro
+```
 
-**Step 2:** Clone the repository using git command
+* For GPU usage install tensorflow GPU version
 ```
-~$ git clone https://github.com/minoh0201/DeepMicro
-~$ cd DeepMicro
+~$ conda install tensorflow-gpu==1.13.1
 ```
-**Step 3:** Create virtual environment using Anaconda3 ([Read Anaconda3 install guide](https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart)) and activate the virtual environment
-```
-~$ conda create --name deep_env python=3.10
-```
-```
-~$ conda activate deep_env
-```
-**Step 4:** Install required packages, then install tensorflow.
-```
-mamba install --file requirements.txt
-```
-* If your machine is *not* equipped with GPU, install tensorflow CPU version 
-  ```
-  ~$ pip install tensorflow==1.13.1
-  ```
-* If it is equipped with GPU, then install tensorflow GPU version
-  ```
-  ~$ pip install tensorflow-gpu==1.13.1
-  ```
 **Step 5:** Run DeepMicro, printing out its usage.
 ```
 ~$ python DM.py -h
