@@ -165,7 +165,6 @@ class DeepMicrobiome(object):
         pca = PCA(n_components=n_comp)
         pca.fit(self.X_train)
 
-        self.X = pca.transform(self.X)
         X_train = pca.transform(self.X_train)
         X_test = pca.transform(self.X_test)
 
