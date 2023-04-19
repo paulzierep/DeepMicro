@@ -1,10 +1,24 @@
 
-from keras.models import Sequential, Model
-from keras.layers import Dense, Dropout, Input, Lambda, Conv2D, Conv2DTranspose, MaxPool2D, UpSampling2D, Flatten, Reshape, Cropping2D
-from keras import backend as K
-from keras.losses import mse, binary_crossentropy
 import math
+
 import numpy as np
+from keras import backend as K
+from keras.layers import (
+    Conv2D,
+    Conv2DTranspose,
+    Cropping2D,
+    Dense,
+    Dropout,
+    Flatten,
+    Input,
+    Lambda,
+    MaxPool2D,
+    Reshape,
+    UpSampling2D,
+)
+from keras.losses import binary_crossentropy, mse
+from keras.models import Model, Sequential
+
 
 # create MLP model
 def mlp_model(input_dim, numHiddenLayers=3, numUnits=64, dropout_rate=0.5):
@@ -257,9 +271,9 @@ def variational_AE(dims, act='relu', init='glorot_uniform', output_act = False, 
 
     vae.compile(optimizer='adam', )
 
-    vae.metrics_tensors.append(K.mean(reconstruction_loss))
+    vae.metrics.append(K.mean(reconstruction_loss))
     vae.metrics_names.append("recon_loss")
-    vae.metrics_tensors.append(K.mean(beta * kl_loss))
+    vae.metrics.append(K.mean(beta * kl_loss))
     vae.metrics_names.append("kl_loss")
 
     return vae, encoder, decoder

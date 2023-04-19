@@ -4,6 +4,6 @@ scipy
 scikit-learn 
 matplotlib-base 
 psutil 
-keras 
+keras >= 2.3.0
 tensorflow
 h5py 

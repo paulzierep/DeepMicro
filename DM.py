@@ -1,39 +1,39 @@
 #!/usr/bin/env python
 # importing numpy, pandas, and matplotlib
+import matplotlib
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use('agg')
-import matplotlib.pyplot as plt
 
-# importing sklearn
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import StratifiedKFold
-from sklearn.decomposition import PCA
-from sklearn.random_projection import GaussianRandomProjection
-from sklearn import cluster
-from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import f1_score
+matplotlib.use('agg')
+# importing util libraries
+import datetime
+import importlib
+import math
+import os
+import time
 
 # importing keras
 import keras
 import keras.backend as K
-from keras.wrappers.scikit_learn import KerasClassifier
-from keras.callbacks import EarlyStopping, ModelCheckpoint, LambdaCallback
+import matplotlib.pyplot as plt
+from keras.callbacks import EarlyStopping, LambdaCallback, ModelCheckpoint
 from keras.models import Model, load_model
+from keras.wrappers.scikit_learn import KerasClassifier
+from sklearn import cluster
+from sklearn.decomposition import PCA
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 
-# importing util libraries
-import datetime
-import time
-import math
-import os
-import importlib
+# importing sklearn
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
+from sklearn.random_projection import GaussianRandomProjection
+from sklearn.svm import SVC
 
 # importing custom library
 import DNN_models
