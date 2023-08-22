@@ -96,34 +96,3 @@ __5. You can repeat the same experiment by changing seeds for random partitionin
 ~$ python DM.py -r 5 -cd UserDataExample.csv -cl UserLabelExample.csv --ae -dm 20 -m svm
 ```
 
-### Reproducing the experiments described in our paper
-__1. Unzip `abundance.zip` and `marker.zip` files under the `/data` directory.__ 
-```
-~$ cd data
-~$ unzip abundance.zip && unzip marker.zip
-~$ cd ..
-```
-__2. Specify dataset name to run.__ Choose dataset you want to run. You can choose one of the followings: `abundance_Cirrhosis`, `abundance_Colorectal`, `abundance_IBD`, `abundance_Obesity`, `abundance_T2D`, `abundance_WT2D`, `marker_Cirrhosis`, `marker_Colorectal`, `marker_IBD`, `marker_Obesity`, `marker_T2D`, `marker_WT2D`. Note that WT2D indicates European Women cohort (EW-T2D) and T2D indicates Chinese cohort (C-T2D).
-
-__3. Run experiments, specifying autoencoder details.__ 
-Suppose we are going to run the best representation model on marker profile of EW-T2D dataset as shown in Table S1. Then, all three classification algorithms are trained and evaluated. We are going to repeat this process 5 times with the following command:
-```
-~$ python DM.py -d marker_WT2D --ae -dm 256
-```
-Note that if you don't specify `-r` argument, it will repeat five times by default. We can use all available CPU cores when we train classification models by introducing `-t -1` argument.
-
-Here are another examples using a single classification algorithm.
-```
-~$ python DM.py -d marker_T2D --cae -dm 4,2 -m mlp
-```
-```
-~$ python DM.py -d abundance_Obesity --cae -dm 4,2 -m rf
-```
-```
-~$ python DM.py -d marker_Colorectal --dae -dm 512,256,128 -m mlp
-```
-
-The result will be saved under `/results` folder in a file whose name is ended with `_results.txt` (e.g. `marker_WT2D_result.txt`)
-
-## Citation
-Oh, Min, and Liqing Zhang. "DeepMicro: deep representation learning for disease prediction based on microbiome data." Scientific reports 10.1 (2020): 1-9.
